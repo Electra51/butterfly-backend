@@ -136,8 +136,6 @@ export const getUserDetailsController = async (req, res) => {
         message: "User not found",
       });
     }
-
-    // If user exists, return user details
     res.status(200).send({
       success: true,
       user,
@@ -154,17 +152,20 @@ export const getUserDetailsController = async (req, res) => {
 
 export const updateUserDetailsController = async (req, res) => {
   try {
-    const { userId } = req.params; // Assuming the user ID is passed in the URL params
+    const { email } = req.params;
+    if (!email) {
+      return res.status(400).send({ message: "Email is required" });
+    }
     const { address, age, profileImage } = req.body; // Extracting data from the request body
 
-    // Validate inputs (optional, depending on your requirements)
+    // Validate inputs
     if (age && age < 0) {
       return res.status(400).json({ error: "Age must be a positive number." });
     }
 
-    // Find the user and update the details
-    const updatedUser = await User.findByIdAndUpdate(
-      userId,
+    // Find the user by email and update the details
+    const updatedUser = await userModel.findOneAndUpdate(
+      { email }, // Find user by email
       {
         ...(address && { address }),
         ...(age && { age }),
@@ -182,9 +183,46 @@ export const updateUserDetailsController = async (req, res) => {
       user: updatedUser,
     });
   } catch (error) {
-    console.error(error);
+    console.error("Update Error:", error);
     res.status(500).json({
       error: "An error occurred while updating user details.",
+    });
+  }
+};
+
+export const changePasswordController = async (req, res) => {
+  try {
+    const { email } = req.params;
+    const { oldPassword, newPassword } = req.body;
+
+    if (!email || !oldPassword || !newPassword) {
+      return res.status(400).json({ error: "All fields are required." });
+    }
+
+    // Find the user by email
+    const user = await userModel.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ error: "User not found." });
+    }
+
+    // Compare old password
+    const isMatch = await comparePassword(oldPassword, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ error: "Incorrect old password." });
+    }
+
+    // Hash the new password
+    const hashedPassword = await hashPassword(newPassword);
+
+    // Update user's password
+    user.password = hashedPassword;
+    await user.save();
+
+    res.status(200).json({ message: "Password changed successfully." });
+  } catch (error) {
+    console.error("Password Change Error:", error);
+    res.status(500).json({
+      error: "An error occurred while changing the password.",
     });
   }
 };

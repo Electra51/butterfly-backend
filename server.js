@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import morgan from "morgan";
 import authRoutes from "./routes/authRoute.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
+import productCategoryRoutes from "./routes/productCategoryRoutes.js";
 import serviceRoutes from "./routes/serviceRoutes.js";
 import cors from "cors";
 import connectDB from "./config/db.js";
@@ -30,6 +31,7 @@ app.use(morgan("dev"));
 
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/category", categoryRoutes);
+app.use("/api/v1/product-category", productCategoryRoutes);
 app.use("/api/v1/service", serviceRoutes);
 
 app.get("/", (req, res) => {

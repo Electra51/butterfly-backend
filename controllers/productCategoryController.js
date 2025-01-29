@@ -1,8 +1,8 @@
-import productCategoryModel from "../models/productCategoryModel";
+import productCategoryModel from "../models/productCategoryModel.js";
 
 export const createProductCategory = async (req, res) => {
   try {
-    const category = new categoryModel(req.body);
+    const category = new productCategoryModel(req.body);
     await category.save();
     res.status(201).json(category);
   } catch (error) {
@@ -23,7 +23,7 @@ export const getProductCategories = async (req, res) => {
 
 export const getProductCategoryById = async (req, res) => {
   try {
-    const category = await categoryModel.findById(req.params.id);
+    const category = await productCategoryModel.findById(req.params.id);
     if (!category) {
       return res.status(404).json({ message: "Category not found" });
     }
@@ -36,7 +36,7 @@ export const getProductCategoryById = async (req, res) => {
 export const updateProductCategoryById = async (req, res) => {
   try {
     const { name, slug, description } = req.body;
-    const category = await categoryModel.findByIdAndUpdate(
+    const category = await productCategoryModel.findByIdAndUpdate(
       req.params.id,
       { name, description, slug },
       { new: true }
@@ -52,7 +52,9 @@ export const updateProductCategoryById = async (req, res) => {
 
 export const deleteProductCategoryById = async (req, res) => {
   try {
-    const category = await categoryModel.findByIdAndDelete(req.params.id);
+    const category = await productCategoryModel.findByIdAndDelete(
+      req.params.id
+    );
     if (!category) {
       return res.status(404).json({ message: "Category not found" });
     }
